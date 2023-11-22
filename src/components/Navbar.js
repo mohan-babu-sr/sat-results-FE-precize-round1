@@ -19,7 +19,7 @@ export default function Navbar() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuItem = () => {
     setAnchorEl(null);
   };
 
@@ -48,29 +48,29 @@ export default function Navbar() {
               horizontal: "right",
             }}
             open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
+            onClose={handleMenuItem}
           >
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleMenuItem}>
               <Link to="/candidate" style={linkStyle}>
                 Add
               </Link>
             </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleMenuItem}>
               <Link to="/" style={linkStyle}>
                 View All
               </Link>
             </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleMenuItem}>
               <Link to="/get-rank" style={linkStyle}>
                 Get Rank
               </Link>
             </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleMenuItem}>
               <Link to="/update-score" style={linkStyle}>
                 Update Score
               </Link>
             </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
+            <MenuItem onClick={handleMenuItem}>
               <Link to="/delete-record" style={linkStyle}>
                 Delete Record
               </Link>

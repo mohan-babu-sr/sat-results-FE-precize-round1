@@ -3,6 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { Paper, Button } from "@mui/material";
+import CommonDialog from './CommonDialog';
 
 const apiUrl = "http://localhost:8080/api/";
 
@@ -12,6 +13,8 @@ export default function DeleteRecord() {
     const [candidates, setCandidates] = useState([]);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [candidateData, setCandidateData] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogContent, setDialogContent] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,15 +23,15 @@ export default function DeleteRecord() {
                 const data = await response.json();
                 setCandidates(data);
             } catch (error) {
-                console.error('Error:', error);
+                setDialogContent({ module: "Delete Candidate", content: error });
+                setDialogOpen(true);
             }
         };
 
         fetchData();
     }, []);
 
-    const updateScore = (event) => {
-        console.log("update called");
+    const updateSelection = (event) => {
         const selectedValue = event.target.value;
         const candidateData = candidates[selectedValue - 1];
         setSelectedCandidate(selectedValue);
@@ -36,7 +39,6 @@ export default function DeleteRecord() {
     }
 
     const deleteCandidate = async (id) => {
-        console.log("delete called");
         try {
             const response = await fetch(apiUrl + `deleteCandidate/${id}`, {
                 method: "DELETE",
@@ -47,11 +49,17 @@ export default function DeleteRecord() {
                 setCandidates(updatedCandidates);
                 setSelectedCandidate("");
             } else {
-                console.error("Failed to delete candidate");
+                setDialogContent({ module: "Delete Candidate", content: "Something went wrong while deleting candidate!" });
+                setDialogOpen(true);
             }
         } catch (error) {
-            console.error("Error:", error);
+            setDialogContent({ module: "Delete Candidate", content: error });
+            setDialogOpen(true);
         }
+    };
+
+    const handleDialogClose = () => {
+        setDialogOpen(false);
     };
 
     return (
@@ -63,7 +71,7 @@ export default function DeleteRecord() {
             <FormControl sx={{ m: 1, minWidth: 120 }}>
                 <Select
                     value={selectedCandidate || ""}
-                    onChange={updateScore}
+                    onChange={updateSelection}
 
                     inputProps={{ 'aria-label': 'Without label' }}
                 >
@@ -80,6 +88,7 @@ export default function DeleteRecord() {
                         Delete
                     </Button>
                 </Paper>}
+            <CommonDialog open={dialogOpen} handleClose={handleDialogClose} dialogContent={dialogContent} />
         </div>
     )
 }
