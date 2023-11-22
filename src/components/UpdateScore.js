@@ -3,6 +3,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Candidate from "./candidate";
+import CommonDialog from './CommonDialog';
 
 const apiUrl = "http://localhost:8080/api/";
 
@@ -10,6 +11,8 @@ export default function UpdateScore() {
     const [candidates, setCandidates] = useState([]);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [candidateData, setCandidateData] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogContent, setDialogContent] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -18,7 +21,8 @@ export default function UpdateScore() {
                 const data = await response.json();
                 setCandidates(data);
             } catch (error) {
-                console.error('Error:', error);
+                setDialogContent({ module: "Update Score", content: error });
+                setDialogOpen(true);
             }
         };
 
@@ -31,7 +35,11 @@ export default function UpdateScore() {
         setSelectedCandidate(selectedValue);
         setCandidateData(candidateData);
     }
-    
+
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+    };
+
     return (
         <div>
             <h1 style={{ color: "#1976d2" }}>Update Candidate</h1>
@@ -50,7 +58,8 @@ export default function UpdateScore() {
                     ))}
                 </Select>
             </FormControl>
-            {selectedCandidate && <Candidate candidateData={candidateData}/>}
-            </div>
-            )
+            {selectedCandidate && <Candidate candidateData={candidateData} />}
+            <CommonDialog open={dialogOpen} handleClose={handleDialogClose} dialogContent={dialogContent} />
+        </div>
+    )
 }

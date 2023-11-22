@@ -10,6 +10,7 @@ import Paper from '@mui/material/Paper';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import CommonDialog from './CommonDialog';
 
 const tableContainerStyle = { padding: "30px 10px", width: 1200, margin: "20px auto" };
 const tableStyle = { width: 1100, margin: "auto", borderCollapse: "collapse", borderRadius: "5px" };
@@ -40,6 +41,8 @@ export default function GetRank() {
     const [candidates, setCandidates] = useState([]);
     const [selectedRank, setSelectedRank] = useState(null);
     const [checkPass, setCheckPass] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogContent, setDialogContent] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -48,7 +51,8 @@ export default function GetRank() {
                 const data = await response.json();
                 setCandidates(data);
             } catch (error) {
-                console.error('Error:', error);
+                setDialogContent({ module: "Update Score", content: error });
+                setDialogOpen(true);
             }
         };
 
@@ -65,6 +69,10 @@ export default function GetRank() {
             setCheckPass("Fail");
         }
     }
+
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+    };
 
     return (
         <div>
@@ -116,6 +124,7 @@ export default function GetRank() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <CommonDialog open={dialogOpen} handleClose={handleDialogClose} dialogContent={dialogContent} />
         </div>
     );
 }

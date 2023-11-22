@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import { Container, Paper, Button } from "@mui/material";
 import { useNavigate, useParams } from 'react-router-dom';
+import CommonDialog from './CommonDialog';
 
 const formStyle = { margin: "20px 20px" };
 const paperStyle = { padding: "50px 20px", width: 600, margin: "20px auto" };
@@ -10,16 +11,19 @@ const apiUrl = "http://localhost:8080/api/";
 
 const Candidate = ({ editMode, candidateData }) => {
   const navigate = useNavigate();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState([]);
+
   let { id } = useParams();
 
   if (!editMode && candidateData) {
     id = id ? id : candidateData.id;
   }
-  
+
   if (candidateData) {
     editMode = true;
   }
-  console.log(id);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,7 +47,6 @@ const Candidate = ({ editMode, candidateData }) => {
     e.preventDefault();
 
     const isUnique = editMode ? true : candidates.every(candidate => {
-      console.log(candidates);
       return candidate.name !== formData.name
     }
     );
@@ -64,7 +67,8 @@ const Candidate = ({ editMode, candidateData }) => {
       setCandidates((prevCandidates) => [...prevCandidates, data]);
       navigate('/');
     } catch (error) {
-      console.error('Error:', error);
+      setDialogContent({ module: editMode ? "Edit Candidate" : "Add Candidate", content: error });
+      setDialogOpen(true);
     }
   };
 
@@ -102,6 +106,10 @@ const Candidate = ({ editMode, candidateData }) => {
     />
   );
 
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
   return (
     <Container>
       <Paper elevation={3} style={paperStyle}>
@@ -122,6 +130,7 @@ const Candidate = ({ editMode, candidateData }) => {
           {editMode ? "Update" : "Submit"}
         </Button>
       </Paper>
+      <CommonDialog open={dialogOpen} handleClose={handleDialogClose} dialogContent={dialogContent} />
     </Container>
   );
 };

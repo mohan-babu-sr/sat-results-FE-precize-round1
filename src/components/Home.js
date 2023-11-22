@@ -10,8 +10,9 @@ import Paper from '@mui/material/Paper';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from "react-router-dom";
+import CommonDialog from './CommonDialog';
 
-const tableContainerStyle = { padding: "30px 10px", width: 1200, margin: "20px auto"};
+const tableContainerStyle = { padding: "30px 10px", width: 1200, margin: "20px auto" };
 const tableStyle = { width: 1100, margin: "auto", borderCollapse: "collapse", borderRadius: "5px" };
 
 const apiUrl = "http://localhost:8080/api/";
@@ -36,80 +37,90 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 
 export default function Home() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [candidates, setCandidates] = useState([]);
-    
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(apiUrl+"candidates");
-          const data = await response.json();
-          setCandidates(data);
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      };
-    
-      fetchData();
-    }, []);
+  const [candidates, setCandidates] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState([]);
 
-    const handleEdit = (id) => {
-        console.log('Edit button clicked with parameter:', id);
-        navigate(`/candidate/edit/${id}`);
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(apiUrl + "candidates");
+        const data = await response.json();
+        setCandidates(data);
+      } catch (error) {
+        setDialogContent({ module: "Update Score", content: error });
+        setDialogOpen(true);
+      }
     };
 
-    const handleDelete = async (id) => {
-        try {
-            const response = await fetch(apiUrl + `deleteCandidate/${id}`, {
-              method: "DELETE",
-            });
-      
-            if (response.ok) {
-              const updatedCandidates = candidates.filter((candidate) => candidate.id !== id);
-              setCandidates(updatedCandidates);
-            } else {
-              console.error("Failed to delete candidate");
-            }
-          } catch (error) {
-            console.error("Error:", error);
-          }
-    };
-    
+    fetchData();
+  }, []);
+
+  const handleEdit = (id) => {
+    navigate(`/candidate/edit/${id}`);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(apiUrl + `deleteCandidate/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const updatedCandidates = candidates.filter((candidate) => candidate.id !== id);
+        setCandidates(updatedCandidates);
+      } else {
+        setDialogContent({ module: "Update Score", content: "Failed to delete candidate, try again!" });
+        setDialogOpen(true);
+      }
+    } catch (error) {
+      setDialogContent({ module: "Update Score", content: error });
+      setDialogOpen(true);
+    }
+  };
+
+
 
   return (
     <TableContainer component={Paper} style={tableContainerStyle}>
-    <Table style={tableStyle} sx={{ minWidth: 700 }} aria-label="customized table">
-      <TableHead>
-        <TableRow>
-          <StyledTableCell>Name</StyledTableCell>
-          <StyledTableCell>Address</StyledTableCell>
-          <StyledTableCell>City</StyledTableCell>
-          <StyledTableCell>Country</StyledTableCell>
-          <StyledTableCell>Pincode</StyledTableCell>
-          <StyledTableCell>SAT Score</StyledTableCell>
-          <StyledTableCell>Action</StyledTableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {candidates.map((row) => (
-          <StyledTableRow key={row.id}>
-            <StyledTableCell component="th" scope="row">
-              {row.name}
-            </StyledTableCell>
-            <StyledTableCell>{row.address}</StyledTableCell>
-            <StyledTableCell>{row.city}</StyledTableCell>
-            <StyledTableCell>{row.country}</StyledTableCell>
-            <StyledTableCell>{row.pincode}</StyledTableCell>
-            <StyledTableCell style={{ color: row.pass ? 'green' : 'red', fontWeight: "600" }}>{row.satScore}</StyledTableCell>
-            <StyledTableCell>
-              <EditIcon style={{ color: 'blue' }} onClick={() => handleEdit(row.id)}/> 
-              <DeleteIcon style={{ color: 'red' }} onClick={() => handleDelete(row.id)}/>
-            </StyledTableCell>
-          </StyledTableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
+      <Table style={tableStyle} sx={{ minWidth: 700 }} aria-label="customized table">
+        <TableHead>
+          <TableRow>
+            <StyledTableCell>Name</StyledTableCell>
+            <StyledTableCell>Address</StyledTableCell>
+            <StyledTableCell>City</StyledTableCell>
+            <StyledTableCell>Country</StyledTableCell>
+            <StyledTableCell>Pincode</StyledTableCell>
+            <StyledTableCell>SAT Score</StyledTableCell>
+            <StyledTableCell>Action</StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {candidates.map((row) => (
+            <StyledTableRow key={row.id}>
+              <StyledTableCell component="th" scope="row">
+                {row.name}
+              </StyledTableCell>
+              <StyledTableCell>{row.address}</StyledTableCell>
+              <StyledTableCell>{row.city}</StyledTableCell>
+              <StyledTableCell>{row.country}</StyledTableCell>
+              <StyledTableCell>{row.pincode}</StyledTableCell>
+              <StyledTableCell style={{ color: row.pass ? 'green' : 'red', fontWeight: "600" }}>{row.satScore}</StyledTableCell>
+              <StyledTableCell>
+                <EditIcon style={{ color: 'blue' }} onClick={() => handleEdit(row.id)} />
+                <DeleteIcon style={{ color: 'red' }} onClick={() => handleDelete(row.id)} />
+              </StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <CommonDialog open={dialogOpen} handleClose={handleDialogClose} dialogContent={dialogContent} />
+    </TableContainer>
   );
 }
